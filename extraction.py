@@ -1,35 +1,21 @@
-from PIL import Image
-from matplotlib import pyplot as plt
 import pytesseract
+import cv2
 
-image_file = "pdf_pages/img-01.jpg"
-img=Image.open(image_file)
+# import image
+img = cv2.imread('1.jpg')
 
-# Matplotlib display function
-def display(img_pil):
-    dpi = 80
+# convertion to gray scale reduces complexity & noise, thus OCR works better
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    height, width = img_pil.size
-    figsize = width / float(dpi), height / float(dpi)
+cv2.imwrite('temp/index_gray.png', gray)
 
-    fig = plt.figure(figsize=figsize)
-    ax = fig.add_axes([0, 0, 1, 1])
-    ax.axis('off')
-    ax.imshow(img_pil, cmap='gray')
-    plt.show()
+text = pytesseract.image_to_string(gray)
+print(text)
 
-display(img)
+# blur the image
+blur = cv2.GaussianBlur(gray, (7,7), 0)
 
-# OCR with pytesseract
-try:
-    print("🔍 Extracting text using pytesseract...")
-    extracted_text = pytesseract.image_to_string(image_file)
-    print("\n📄 Extracted Text:")
-    print(extracted_text)
-    
-    # Optional: save to file
-    with open("extracted_text.txt", "w", encoding="utf-8") as f:
-        f.write(extracted_text)
-    print("✅ Text saved to extracted_text.txt")
-except Exception as e:
-    print(f"❌ OCR failed: {e}")
+cv2.imwrite('temp/index_blur.png', blur)
+
+text1 = pytesseract.image_to_string(blur)
+print(text1)
